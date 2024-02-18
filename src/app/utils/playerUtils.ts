@@ -5,7 +5,7 @@ export async function fetchAllPlayers(): Promise<IPlayer[]> {
     let allPlayers: IPlayer[] = [];
 
     try {
-        const res: Response = await fetch('http://localhost:3000/api/users', {
+        const res: Response = await fetch('../api/users', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export async function fetchAllPlayers(): Promise<IPlayer[]> {
 
 export async function updatePlayers(playerList: IPlayer[]): Promise<IPlayer[]> {
     try {
-        const res: Response = await fetch('http://localhost:3000/api/users', {
+        const res: Response = await fetch('../api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
