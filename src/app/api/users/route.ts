@@ -11,7 +11,7 @@ export async function GET(): Promise<Response> {
 
     let res: Response = new Response();
 	try {
-		res = await fetch(`${serverUri}/users`, {
+		res = await fetch(serverUri + '/users', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function POST(req: Request): Promise<Response> {
 	const reqJson = await req.json(); // To get the data from a Request obj, you need to await it
 	let res: Response = new Response();
 	try {
-		res = await fetch(`${serverUri}/users`, {
+		res = await fetch(serverUri + '/users', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
