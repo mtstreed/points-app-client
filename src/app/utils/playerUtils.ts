@@ -38,7 +38,6 @@ export async function updatePlayers(playerList: IPlayer[]): Promise<IPlayer[]> {
 }
 
 
-// TODO need to fix the problem where sorting players messes up the order in which they're displayed
 export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
     playerList.sort((a: IPlayer, b: IPlayer) => b.points - a.points);
     playerList.map((playerToSort, i) => playerToSort.rank = i + 1)
