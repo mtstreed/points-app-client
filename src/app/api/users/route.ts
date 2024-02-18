@@ -5,6 +5,10 @@ dotenv.config();
 const serverUri = process.env.SERVER_URI;
 
 export async function GET(): Promise<Response> {
+	console.log('api/users/route.ts|GET| START');
+	console.log('api/users/route.ts|GET| serverUri: ' + serverUri)
+	debugger;
+
     let res: Response = new Response();
 	try {
 		res = await fetch(`${serverUri}/users`, {
