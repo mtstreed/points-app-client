@@ -1,5 +1,3 @@
-import IPlayer from '../../types/IPlayer';
-
 
 export async function GET(): Promise<Response> {
     const res: Response = await fetch('http://localhost:3030/users', {
