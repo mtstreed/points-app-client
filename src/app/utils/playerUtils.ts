@@ -1,7 +1,7 @@
 import IPlayer from '../types/IPlayer'; 
 
 
-export async function fetchAllPlayers(): Promise<IPlayer[]> {
+export async function dbFetchAllPlayers(): Promise<IPlayer[]> {
     let allPlayers: IPlayer[] = [];
 
     try {
@@ -19,8 +19,7 @@ export async function fetchAllPlayers(): Promise<IPlayer[]> {
     return allPlayers;
 }
 
-
-export async function updatePlayers(playerList: IPlayer[]): Promise<IPlayer[]> {
+export async function dbUpdatePlayers(playerList: IPlayer[]): Promise<IPlayer[]> {
     try {
         const res: Response = await fetch('../api/users', {
             method: 'POST',
@@ -54,3 +53,11 @@ export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
     });
     return playerList;
 }
+
+
+export function updatePlayerList(playerList: IPlayer[], clickedPlayerId: number): IPlayer[] {
+    playerList = playerList.map((player) => player._id === clickedPlayerId ? {...player, points: player.points + 1} : player);
+    playerList = assignPlayerRanks(playerList);
+    return playerList;
+}
+
