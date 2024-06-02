@@ -10,11 +10,12 @@ interface PlayerCardProps {
 export default function PlayerCard({player, onAddPoints}: PlayerCardProps) {
 
     return (
-        <div className="text-center bg-blue-400 rounded-lg p-4 flex flex-col items-center flex-shrink-0 w-40">
-            <h1 className="text-white text-xl font-bold">{player.name}</h1>
-            <h1 className="text-white">{player.points} points</h1>
-            <h1 className="text-white">Rank {player.rank}</h1>
-            <button className="bg-blue-300 text-white px-4 py-1 rounded-lg" onClick={onAddPoints}>Click!</button>
+        // Make 1st ranked PlayerCard golden
+        <div className={`text-center rounded-lg p-4 flex flex-col items-center flex-shrink-0 w-40 ${player.rank === 1 ? 'text-yellow-200 bg-gradient-to-tl from-yellow-400 to-yellow-600 shadow-2xl shadow-inner' : 'text-white bg-blue-400'}`}>
+            <h1 className="text-xl font-bold">{player.name}</h1>
+            <h1 className="">{player.points} points</h1>
+            <h1 className="">Rank {player.rank}</h1>
+            <button className={`px-4 py-1 rounded-lg ${player.rank === 1 ? 'border-4 border-yellow-200' : 'bg-blue-300'}`} onClick={onAddPoints}>Click!</button>
         </div>
     );
 }
