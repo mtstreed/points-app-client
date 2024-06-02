@@ -13,6 +13,9 @@ export async function dbFetchAllPlayers(): Promise<IPlayer[]> {
             },
         });
         allPlayers = await res.json() as IPlayer[];
+
+        // Ensure that players are sorted by rank when fetched from db
+        allPlayers = assignPlayerRanks(allPlayers);
     } catch (e) {
         console.log('playerUtils|fetchAllPlayers| error: ' + e);
     }
@@ -38,12 +41,11 @@ export async function dbUpdatePlayers(playerList: IPlayer[]): Promise<IPlayer[]>
 
 
 export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
-    playerList.sort((a: IPlayer, b: IPlayer) => b.points - a.points);
+    playerList.sort((a: IPlayer, b: IPlayer) => b.points - a.points); // Sort the array by points
     playerList.map((playerToSort, i) => playerToSort.rank = i + 1)
 
-    // Map over the input array. Give each player their new rank.
     playerList.map((player) => {
-        // Handling for inherent possibility that find() returns undefined. Bit of a hassle.
+        // Handling for inherent possibility that find() returns undefined. Bit of a hassle
         const sortedPlayer: IPlayer | undefined = playerList.find((sortedPlayer: IPlayer) => sortedPlayer._id === player._id);
         if (sortedPlayer) {
             player.rank = sortedPlayer.rank;
