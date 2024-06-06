@@ -2,7 +2,7 @@ import Scoreboard from './Scoreboard'
 
 export default function MainContent() {
     return(
-        <div className="bg-gray-500">
+        <div className="bg-blue-50">
             <Scoreboard></Scoreboard>
         </div>
     );
