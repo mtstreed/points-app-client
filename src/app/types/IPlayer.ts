@@ -3,4 +3,6 @@ export default interface IPlayer {
     name: string;
     points: number;
     rank: number;
+    email: string;
+    auth0Id: string;
 }

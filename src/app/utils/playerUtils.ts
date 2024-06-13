@@ -1,9 +1,6 @@
 import IPlayer from '../types/IPlayer'; 
 
-
 export async function dbFetchAllPlayers(): Promise<IPlayer[]> {
-    let allPlayers: IPlayer[] = [];
-
     try {
         const res: Response = await fetch('../api/users', {
             method: 'GET',
@@ -12,54 +9,49 @@ export async function dbFetchAllPlayers(): Promise<IPlayer[]> {
                 'Cache-Control': 'no-cache',
             },
         });
-        allPlayers = await res.json() as IPlayer[];
-
-        // Ensure that players are sorted by rank when fetched from db
-        allPlayers = assignPlayerRanks(allPlayers);
-    } catch (e) {
-        console.log('playerUtils|fetchAllPlayers| error: ' + e);
+        if (!res.ok) {
+            // Attempt to parse the error response
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Failed to update user');
+        }
+        const result = await res.json();
+        return result as IPlayer[];
+    } catch (error) {
+        console.log('playerUtils|dbFetchAllPlayers| error: ' + error);
+        throw error;
     }
-    return allPlayers;
 }
 
-export async function dbUpdatePlayers(playerList: IPlayer[]): Promise<IPlayer[]> {
+
+export async function dbUpdatePlayer(player: IPlayer): Promise<IPlayer> {
     try {
-        const res: Response = await fetch('../api/users', {
+        const res: Response = await fetch(`../api/users/${player.auth0Id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(playerList),
+            body: JSON.stringify(player),
         });
-        const data = await res.json();
-    } catch (e) {
-        console.log('playerUtils|updatePlayers| error: ' + e);
-    }
-
-    return playerList;
-}
-
-
-export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
-    playerList.sort((a: IPlayer, b: IPlayer) => b.points - a.points); // Sort the array by points
-    playerList.map((playerToSort, i) => playerToSort.rank = i + 1)
-
-    playerList.map((player) => {
-        // Handling for inherent possibility that find() returns undefined. Bit of a hassle
-        const sortedPlayer: IPlayer | undefined = playerList.find((sortedPlayer: IPlayer) => sortedPlayer._id === player._id);
-        if (sortedPlayer) {
-            player.rank = sortedPlayer.rank;
-        } else {
-            player.rank;
+        if (!res.ok) {
+            // Attempt to parse the error response
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Failed to update user');
         }
+        const result = await res.json();
+        return result as IPlayer;
+    } catch (error) {
+        console.log('playerUtils|dbUpdatePlayer| error: ' + error);
+        throw error;
+    }
+}
+
+
+// This function is only used to update state, so it always makes copies of the players being ranked (treat state as immutable).
+export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
+    let playerListCopy = [...playerList];
+    playerListCopy.sort((a: IPlayer, b: IPlayer) => b.points - a.points); // Sort the array by points
+    playerListCopy = playerListCopy.map((playerToSort, i) => {
+        return {...playerToSort, rank: i + 1};
     });
-    return playerList;
+    return playerListCopy;
 }
-
-
-export function updatePlayerList(playerList: IPlayer[], clickedPlayerId: number): IPlayer[] {
-    playerList = playerList.map((player) => player._id === clickedPlayerId ? {...player, points: player.points + 1} : player);
-    playerList = assignPlayerRanks(playerList);
-    return playerList;
-}
-

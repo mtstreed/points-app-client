@@ -3,7 +3,7 @@
 import {useState, useEffect} from 'react';
 import IPlayer from '../types/IPlayer'
 import PlayerCard from './PlayerCard';
-import { dbFetchAllPlayers, dbUpdatePlayers, updatePlayerList } from '../utils/playerUtils';
+import { dbFetchAllPlayers, dbUpdatePlayer, assignPlayerRanks } from '../utils/playerUtils';
 import Confetti from 'react-confetti';
 
 
@@ -11,26 +11,42 @@ export default function Scoreboard() {
     const [players, setPlayers] = useState<IPlayer[] | null>(null);
     const [isConfettiVisible, setIsConfettiVisible] = useState(false);
 
-    // TODO put in server component? Only need to fetch once upon mount
-    // useEffect for fetching the intitial players state upon component mount.
     useEffect(() => {
         const fetchAsyncPlayers: () => void = async () => {
-            const allPlayers: IPlayer[] = await dbFetchAllPlayers();
-            setPlayers(allPlayers);
+            try {
+                // const resData: String = await dbFetchAllPlayers();
+                let allPlayers: IPlayer[] = await dbFetchAllPlayers(); //resData as unknown as IPlayer[];
+                allPlayers = assignPlayerRanks(allPlayers);
+                setPlayers(allPlayers);
+            } catch (error) {
+                console.log('ScoreBoard|fetchAsyncPlayers|error: ' + JSON.stringify(error));
+            }
+            
         }
         fetchAsyncPlayers();
     }, []);
 
-    const handleAddPoints = (clickedPlayerId: number): void => {
+
+    const handleAddPoints = async (clickedPlayer: IPlayer): Promise<void> => {
         if (players) {
-            let updatedPlayers = [...players];
-            updatedPlayers = updatePlayerList(updatedPlayers, clickedPlayerId);
-            setPlayers(updatedPlayers);
-            dbUpdatePlayers(updatedPlayers);
+            let playersCopy: IPlayer[] = [...players];
+            // Find the index of the player to be updated, and assign a new (shallow copied) player to that reference.
+            const playerIndex = playersCopy.findIndex(player => player.auth0Id === clickedPlayer.auth0Id);
+            if (playerIndex !== -1) { // findIndex() returns -1 if not found.
+                playersCopy[playerIndex] = { ...playersCopy[playerIndex], points: playersCopy[playerIndex].points + 1 };
+            }
+
+            // Rerank and update all players. 
+            // dbUpdatedPlayer() returns a promise, so we need to await the array of promises.
+            playersCopy = assignPlayerRanks(playersCopy);
+            playersCopy = await Promise.all(playersCopy.map(async (updatedPlayerCopy) => {
+                return await dbUpdatePlayer(updatedPlayerCopy);
+            }));
+            setPlayers(playersCopy);
 
             // If the order of names has changed, that means the rankings have changed. Throw some confetti.
             const oldRanks: string[] = players.map(player => player.name);
-            const newRanks: string[] = updatedPlayers.map(player => player.name);
+            const newRanks: string[] = playersCopy.map(player => player.name);
             // Compare values, not obj references
             if (JSON.stringify(oldRanks) !== JSON.stringify(newRanks)) {
                 setIsConfettiVisible(true);
@@ -49,7 +65,7 @@ export default function Scoreboard() {
                         <PlayerCard 
                             key={player._id} 
                             player={player} 
-                            onAddPoints={() => handleAddPoints(player._id)}
+                            onAddPoints={() => handleAddPoints(player)}
                         />
                     ))}
                 </div>
