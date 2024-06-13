@@ -13,16 +13,21 @@ export default function Scoreboard() {
 
     useEffect(() => {
         const fetchAsyncPlayers: () => void = async () => {
-            const resJson: String = await dbFetchAllPlayers();
-            let allPlayers: IPlayer[] = resJson as unknown as IPlayer[];
-            allPlayers = assignPlayerRanks(allPlayers);
-            setPlayers(allPlayers);
+            try {
+                // const resData: String = await dbFetchAllPlayers();
+                let allPlayers: IPlayer[] = await dbFetchAllPlayers(); //resData as unknown as IPlayer[];
+                allPlayers = assignPlayerRanks(allPlayers);
+                setPlayers(allPlayers);
+            } catch (error) {
+                console.log('ScoreBoard|fetchAsyncPlayers|error: ' + JSON.stringify(error));
+            }
+            
         }
         fetchAsyncPlayers();
     }, []);
 
 
-    const handleAddPoints = (clickedPlayer: IPlayer): void => {
+    const handleAddPoints = async (clickedPlayer: IPlayer): Promise<void> => {
         if (players) {
             let playersCopy: IPlayer[] = [...players];
             // Find the index of the player to be updated, and assign a new (shallow copied) player to that reference.
@@ -30,8 +35,14 @@ export default function Scoreboard() {
             if (playerIndex !== -1) { // findIndex() returns -1 if not found.
                 playersCopy[playerIndex] = { ...playersCopy[playerIndex], points: playersCopy[playerIndex].points + 1 };
             }
+
+            // Rerank and update all players. 
+            // dbUpdatedPlayer() returns a promise, so we need to await the array of promises.
             playersCopy = assignPlayerRanks(playersCopy);
-            playersCopy.map((updatedPlayerCopy) => dbUpdatePlayer(updatedPlayerCopy));
+            playersCopy = await Promise.all(playersCopy.map(async (updatedPlayerCopy) => {
+                return await dbUpdatePlayer(updatedPlayerCopy);
+            }));
+            setPlayers(playersCopy);
 
             // If the order of names has changed, that means the rankings have changed. Throw some confetti.
             const oldRanks: string[] = players.map(player => player.name);

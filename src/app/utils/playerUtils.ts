@@ -1,8 +1,6 @@
 import IPlayer from '../types/IPlayer'; 
 
-export async function dbFetchAllPlayers(): Promise<String> {
-    let allPlayers: IPlayer[] = [];
-
+export async function dbFetchAllPlayers(): Promise<IPlayer[]> {
     try {
         const res: Response = await fetch('../api/users', {
             method: 'GET',
@@ -17,17 +15,17 @@ export async function dbFetchAllPlayers(): Promise<String> {
             throw new Error(errorData.message || 'Failed to update user');
         }
         const result = await res.json();
-        return JSON.stringify(result.data);
+        return result as IPlayer[];
     } catch (error) {
-        console.log('playerUtils|fetchAllPlayers| error: ' + error);
+        console.log('playerUtils|dbFetchAllPlayers| error: ' + error);
         throw error;
     }
 }
 
 
-export async function dbUpdatePlayer(player: IPlayer): Promise<String> {
+export async function dbUpdatePlayer(player: IPlayer): Promise<IPlayer> {
     try {
-        const res: Response = await fetch(`../api/users${player.auth0Id}`, {
+        const res: Response = await fetch(`../api/users/${player.auth0Id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,32 +38,20 @@ export async function dbUpdatePlayer(player: IPlayer): Promise<String> {
             throw new Error(errorData.message || 'Failed to update user');
         }
         const result = await res.json();
-        return JSON.stringify(result.data);
+        return result as IPlayer;
     } catch (error) {
-        console.log('playerUtils|updatePlayers| error: ' + error);
+        console.log('playerUtils|dbUpdatePlayer| error: ' + error);
         throw error;
     }
 }
 
 
-// This function is only used to update state, so it always makes copies of the objects it wants to update.
-// Sort the list of players, and then reassign each array reference to a copy with the correct rank.
+// This function is only used to update state, so it always makes copies of the players being ranked (treat state as immutable).
 export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
-    let playerListCopy: IPlayer[] = [... playerList];
+    let playerListCopy = [...playerList];
     playerListCopy.sort((a: IPlayer, b: IPlayer) => b.points - a.points); // Sort the array by points
-
-    playerListCopy = playerListCopy.map((playerToSort, i) => (
-        {...playerToSort, rank: i + 1}
-    ));
+    playerListCopy = playerListCopy.map((playerToSort, i) => {
+        return {...playerToSort, rank: i + 1};
+    });
     return playerListCopy;
 }
-
-
-// Should just update a single player, should not include reranking
-// Actually, can delete? adding points will happen in component; reranking will happen outside of db update.
-export function updatePlayerList(playerList: IPlayer[], clickedPlayerId: number): IPlayer[] {
-    playerList = playerList.map((player) => player._id === clickedPlayerId ? {...player, points: player.points + 1} : player);
-    playerList = assignPlayerRanks(playerList);
-    return playerList;
-}
-
