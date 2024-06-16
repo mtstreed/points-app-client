@@ -21,17 +21,16 @@ export default function Navbar() {
 
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="relative rounded px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 w-32"
-              style={{height: dropdownOpen ? 'auto' : '2.5rem' }}
+              className="flex items-center relative rounded px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 w-32"
+              style={{height: dropdownOpen ? 'auto' : 'auto' }}
             >
 
                 {!user && (
-                    <a
-                    href="/api/auth/login"
-                    className="flex-1 h-full w-full justify-center py-2"
+                    <button className="flex-1 flex items-center h-full w-full justify-center"
+                        onClick={() => window.location.href = '/api/auth/login'}
                     >
                     Login
-                    </a>
+                    </button>
                 )}
 
 
@@ -58,11 +57,6 @@ export default function Navbar() {
                             >
                             Logout
                             </button>
-                            {/* <a
-                            href="/api/auth/logout"
-                            >
-                            Logout
-                            </a> */}
                         </div>
                         
                     </div>
