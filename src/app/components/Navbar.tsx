@@ -26,12 +26,6 @@ export default function Navbar() {
             >
 
                 {!user && (
-                    // <a
-                    // href="/api/auth/login"
-                    // className="flex-1 flex items-center justify-center h-6 py-2"
-                    // >
-                    // Login
-                    // </a>
                     <button className="flex-1 flex items-center h-full w-full justify-center"
                         onClick={() => window.location.href = '/api/auth/login'}
                     >
@@ -63,11 +57,6 @@ export default function Navbar() {
                             >
                             Logout
                             </button>
-                            {/* <a
-                            href="/api/auth/logout"
-                            >
-                            Logout
-                            </a> */}
                         </div>
                         
                     </div>
