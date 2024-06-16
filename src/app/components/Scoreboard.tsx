@@ -12,18 +12,17 @@ export default function Scoreboard() {
     const [isConfettiVisible, setIsConfettiVisible] = useState(false);
 
     useEffect(() => {
-        const fetchAsyncPlayers: () => void = async () => {
+        const asyncFetchPlayers = async () => {
             try {
-                // const resData: String = await dbFetchAllPlayers();
-                let allPlayers: IPlayer[] = await dbFetchAllPlayers(); //resData as unknown as IPlayer[];
+                let allPlayers: IPlayer[] = await dbFetchAllPlayers();
                 allPlayers = assignPlayerRanks(allPlayers);
                 setPlayers(allPlayers);
             } catch (error) {
-                console.log('ScoreBoard|fetchAsyncPlayers|error: ' + JSON.stringify(error));
+                console.log('ScoreBoard|asyncFetchPlayers|error: ' + JSON.stringify(error));
             }
             
         }
-        fetchAsyncPlayers();
+        asyncFetchPlayers();
     }, []);
 
 
@@ -47,12 +46,11 @@ export default function Scoreboard() {
             // If the order of names has changed, that means the rankings have changed. Throw some confetti.
             const oldRanks: string[] = players.map(player => player.name);
             const newRanks: string[] = playersCopy.map(player => player.name);
-            // Compare values, not obj references
-            if (JSON.stringify(oldRanks) !== JSON.stringify(newRanks)) {
+            if (JSON.stringify(oldRanks) !== JSON.stringify(newRanks)) { // Compare values, not obj references
                 setIsConfettiVisible(true);
                 setTimeout(() => {
                     setIsConfettiVisible(false);
-                }, 5000); // Confetti will be visible for 5 seconds
+                }, 5000); // Confetti for 5 seconds
             }
         }
     }
