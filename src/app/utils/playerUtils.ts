@@ -32,11 +32,6 @@ export async function dbUpdatePlayer(player: IPlayer): Promise<IPlayer> {
             },
             body: JSON.stringify(player),
         });
-        if (!res.ok) {
-            // Attempt to parse the error response
-            const errorData = await res.json();
-            throw new Error(errorData.message || 'Failed to update user');
-        }
         const result = await res.json();
         return result as IPlayer;
     } catch (error) {
@@ -54,4 +49,39 @@ export function assignPlayerRanks(playerList: IPlayer[]): IPlayer[] {
         return {...playerToSort, rank: i + 1};
     });
     return playerListCopy;
+}
+
+export async function dbGetPlayerById(auth0Id: string): Promise<IPlayer | undefined> {
+    try {
+        const res: Response = await fetch(`../api/users/${auth0Id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        // Handle for user not found error, and others.
+        if (res.status === 404) {
+            return undefined;
+        }
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Failed to update user');
+        }
+        return await res.json() as IPlayer;
+    } catch {
+        console.log('dbGetPlayerById|No existing user found');
+        return undefined;
+    }
+}
+
+export async function dbCreatePlayer(player: IPlayer): Promise<IPlayer> {
+    const res: Response = await fetch(`../api/users`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(player),
+    });
+    return await res.json() as IPlayer;
 }

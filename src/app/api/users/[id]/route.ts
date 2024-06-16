@@ -9,13 +9,12 @@ export async function GET(req: Request, { params }: { params: { id: String } }):
     let res: Response = new Response();
 	try {
 		res = await fetch(serverUri + `/users/${id}`, {
-			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 			}
 		});
 	} catch (error) {
-		console.log('api/users/[id]route.ts|GET| error: ' + error);
+		console.log('api/users/[id]/route.ts|GET| error: ' + error);
 	}
 	return res;
 }
@@ -32,7 +31,7 @@ export async function POST(req: Request, { params }: { params: { id: String } })
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(reqJson)
+			body: JSON.stringify(reqJson),
 		});
 	} catch (error) {
 		console.log('api/users/[id]/route.ts|POST| error: ' + error);
