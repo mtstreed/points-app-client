@@ -5,11 +5,13 @@ import IPlayer from '../types/IPlayer'
 import PlayerCard from './PlayerCard';
 import { dbFetchAllPlayers, dbUpdatePlayer, assignPlayerRanks } from '../utils/playerUtils';
 import Confetti from 'react-confetti';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 
 export default function Scoreboard() {
     const [players, setPlayers] = useState<IPlayer[] | null>(null);
     const [isConfettiVisible, setIsConfettiVisible] = useState(false);
+    const { user, error, isLoading } = useUser();
 
     useEffect(() => {
         const asyncFetchPlayers = async () => {
@@ -63,6 +65,7 @@ export default function Scoreboard() {
                         <PlayerCard 
                             key={player._id} 
                             player={player} 
+                            loggedIn={user && user.sub == player.auth0Id ? true : false}
                             onAddPoints={() => handleAddPoints(player)}
                         />
                     ))}
