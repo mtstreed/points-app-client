@@ -60,7 +60,7 @@ export default function Scoreboard() {
     if (players) {
         return (
             <div>
-                <div className="flex space-x-4 items-center justify-center h-screen">
+                <div className="flex flex-wrap space-x-4 space-y-3 px-10 items-center justify-start">
                     {players.map((player, index) => (
                         <PlayerCard 
                             key={player._id} 
